@@ -1,0 +1,13 @@
+{
+    "pool": {
+      "tokenA": 1000,
+      "tokenB": 1000,
+      "K": 1000000
+    },
+    "users": {
+      "userD": {
+        "tokenA": 500,
+        "tokenB": 500
+      }
+  }
+}
