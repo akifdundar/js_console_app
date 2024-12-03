@@ -4,7 +4,7 @@ import { rdb } from "./firebase.js";
 
 async function initializeDataBase() {
     try {
-        const data = await readFile("data.json", "utf-8");            //tek tırnak kullanımlarını düzelt sonra belki
+        const data = await readFile("data.json", "utf-8");            
         const pool = JSON.parse(data);
 
         await set(ref(rdb), pool);

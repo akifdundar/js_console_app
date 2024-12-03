@@ -1,50 +1,48 @@
-import { Command } from "commander";
 import inquirer from "inquirer";
+import { initializeDataBase  } from "./initializeDatabase.js";  
+import { getBalance, printBalance } from "./get_printBalance.js";
 
-const program = new Command();
-
-
-program
-    .name("Uniswap V2 DEX")
-    .description("Uniswap V2 DEX Simülasyonu")
-    .version("0.0.1");
-
-program 
-    .command("start-app <username>")
-    .description("Log in to app")
-        .action((name) => {
-            console.log("Hello " + name);
-            chooseOption();
-        });
-
-async function chooseOption() {
-    console.clear();
-
+async function menu() {
+    
     const answers = await inquirer.prompt([
         {
             type: "list",
             name: "action",
-            message: "ne yapmak istersin kardaş la",
+            message: "What would you like to do?",
             choices: [
-                { name: 'Uniswap V2 DEX Simülasyonu Başlat', value: 'start' },
-                { name: 'Versiyon Bilgisi', value: 'version' },
-                { name: 'Yardım', value: 'help' },
-                { name: 'Çıkış', value: 'exit' },
-            ] 
+                { name: "1. Add Liquidity", value: "add" },
+                { name: "2. Swap (Token A -> Token B or Token B -> Token A)", value: "swap" },
+                { name: "3. View Pool Status", value: "pool" },
+                { name: "4. View User Balance", value: "balance" },
+                { name: "5. Exit", value: "exit" },
+            ]
         }
     ]);
 
-    if (answers.action === 'start') {
-        console.log('Simülasyon başlatıldı...');
-        // Burada simülasyon işlemleri yapılabilir
-    } else if (answers.action === 'version') {
-        console.log('Versiyon: 1.0.0');
-    } else if (answers.action === 'help') {
-        program.help(); // Yardım komutunu göster
-    } else if (answers.action === 'exit') {
-        console.log('Çıkılıyor...');
-        process.exit(0); // Uygulamadan çık
+    switch (answers.action) {
+        case "add":
+            console.log("...");
+            break;
+        case "swap":
+            console.log("Swap işlemi...");
+            break;
+        case "pool":
+            printBalance();
+            break;
+        case "balance":
+            await printBalance();
+            break;
+        case "exit":
+            console.log("Çikiliyor...");
+            return;  
+        default:
+            console.log("Geçersiz seçenek");
+            break;
     }
+
+    await menu(); 
 }
 
-program.parse();
+await initializeDataBase();
+await getBalance("userD");  // Bunu uygun durumlarda kullanıcı id'si ile değiştirebiliriz
+await menu();
