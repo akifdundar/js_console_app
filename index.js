@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import { initializeDataBase  } from "./initializeDatabase.js";  
 import { getBalance, printBalance } from "./get_printBalance.js";
+import {getPool} from "./get_poolBalance.js"
 
 async function menu() {
     
@@ -27,7 +28,7 @@ async function menu() {
             console.log("Swap işlemi...");
             break;
         case "pool":
-            printBalance();
+            getPool();
             break;
         case "balance":
             await printBalance();
