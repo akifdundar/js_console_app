@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-import { runTransaction } from "firebase/database";
+import { runTransaction, get, set } from "firebase/database";
 import { rdb } from "./firebase.js";
 
 async function swap(userID) {
@@ -51,53 +51,51 @@ async function swapA(amount, userID) {
   const poolRef = ref(rdb, "pool");
 
   try {
-    await runTransaction(poolRef, (CurrentPool) => {
-      if (!CurrentPool) {
-        console.log("No data found in 'pool'.");
+    // Fetch user data separately
+    const userSnapshot = await get(userRef);
+    if (!userSnapshot.exists()) {
+      console.error("No user data found.");
+      return;
+    }
+    const userData = userSnapshot.val();
+
+    // Check if the user has enough TokenA
+    if (userData.tokenA < amount) {
+      console.error("Insufficient TokenA balance.");
+      return;
+    }
+
+    // Perform pool transaction
+    await runTransaction(poolRef, (currentPool) => {
+      if (!currentPool) {
+        console.error("No pool data found.");
         return null; // Abort transaction
       }
 
-      return runTransaction(userRef, (CurrentUser) => {
-        if (!CurrentUser) {
-          console.log(`No data found for user: ${userID}`);
-          return null; // Abort transaction
-        }
+      // Deduct TokenA from the user and add to the pool
+      userData.tokenA -= amount;
+      currentPool.tokenA += amount;
 
-        if (CurrentUser.tokenA < amount) {
-          console.log("Insufficient Token A balance.");
-          return null; // Abort transaction
-        }
+      // Calculate new TokenB in the pool
+      const newTokenB = currentPool.K / currentPool.tokenA;
 
-        // Perform the swap
-        CurrentUser.tokenA -= amount; // Deduct Token A from user
-        CurrentPool.tokenA += amount; // Add Token A to pool
+      // Update TokenB balances
+      const userTokenBGain = currentPool.tokenB - newTokenB;
+      userData.tokenB += userTokenBGain;
+      currentPool.tokenB = newTokenB;
 
-        const tempB = CurrentPool.K / CurrentPool.tokenA; // Calculate new Token B
-        CurrentUser.tokenB += CurrentPool.tokenB - tempB; // Add equivalent to users Token Balance
-        CurrentPool.tokenB = tempB; // Update pool Token B
+      return currentPool; // Updated pool data
+    });
 
-        return {
-          CurrentPool,
-          CurrentUser
-        };
-      })
-        .then(() => {
-          console.log("User transaction successful.");
-        })
-        .catch((error) => {
-          console.log("User transaction failed:", error);
-        });
-    })
-      .then(() => {
-        console.log("Pool transaction successful.");
-      })
-      .catch((error) => {
-        console.log("Pool transaction failed:", error);
-      });
+    // Update user data
+    await set(userRef, userData);
+
+    console.log("Swap successful!");
   } catch (error) {
     console.error("Error in swapA:", error);
   }
 }
+
 
 
 async function swapB(amount, userID) {
@@ -105,47 +103,48 @@ async function swapB(amount, userID) {
   const poolRef = ref(rdb, "pool");
 
   try {
-    await runTransaction(poolRef, (CurrentPool) => {
-      if (!CurrentPool) {
-        console.log("No data found in 'pool'.");
+    // Fetch user data separately
+    const userSnapshot = await get(userRef);
+    if (!userSnapshot.exists()) {
+      console.error("No user data found.");
+      return;
+    }
+    const userData = userSnapshot.val();
+
+    // Check if the user has enough TokenA
+    if (userData.tokenB < amount) {
+      console.error("Insufficient TokenA balance.");
+      return;
+    }
+
+    // Perform pool transaction
+    await runTransaction(poolRef, (currentPool) => {
+      if (!currentPool) {
+        console.error("No pool data found.");
         return null; // Abort transaction
       }
 
-      return runTransaction(userRef, (CurrentUser) => {
-        if (!CurrentUser) {
-          console.log(`No data found for user: ${userID}`);
-          return null; // Abort transaction
-        }
+      // Deduct TokenA from the user and add to the pool
+      userData.tokenB -= amount;
+      currentPool.tokenB += amount;
 
-        if (CurrentUser.tokenB < amount) {
-          console.log("Insufficient Token B balance.");
-          return null; // Abort transaction
-        }
+      // Calculate new TokenB in the pool
+      const newTokenA = currentPool.K / currentPool.tokenB;
 
-        // Perform the swap
-        CurrentUser.tokenB -= amount; // Deduct Token B from user
-        CurrentPool.tokenB += amount; // Add Token B to pool
+      // Update TokenB balances
+      const userTokenAGain = currentPool.tokenA - newTokenA;
+      userData.tokenA += userTokenAGain;
+      currentPool.tokenA = newTokenA;
 
-        const tempA = CurrentPool.K / CurrentPool.tokenB; // Calculate new Token A
-        CurrentUser.tokenA += CurrentPool.tokenA - tempA; // Add equivalent users Tokan Balanca
-        CurrentPool.tokenA = tempA; // Update pool Token A
+      return currentPool; // Updated pool data
+    });
 
-        return {
-          CurrentPool,
-          CurrentUser
-        };
-      }).then(() => {
-          console.log("User transaction successful.");
-        }).catch((error) => {
-          console.log("User transaction failed:", error);
-        });
-    }).then(() => {
-        console.log("Pool transaction successful.");
-      }).catch((error) => {
-        console.log("Pool transaction failed:", error);
-      });
+    // Update user data
+    await set(userRef, userData);
+
+    console.log("Swap successful!");
   } catch (error) {
-    console.error("Error in swapB:", error);
+    console.error("Error in swapA:", error);
   }
 }
 
