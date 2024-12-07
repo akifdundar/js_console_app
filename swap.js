@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
-import { runTransaction, get, set } from "firebase/database";
+import { runTransaction, get, set, ref } from "firebase/database";
 import { rdb } from "./firebase.js";
+import { getBalance } from "./get_printBalance.js";
 
 async function swap(userID) {
   try {
@@ -43,6 +44,7 @@ async function swap(userID) {
   } catch (error) {
     console.log("Error occurred during operation:", error);
   }
+  getBalance("userD");
 }
 
 
