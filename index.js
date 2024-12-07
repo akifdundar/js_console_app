@@ -1,5 +1,6 @@
 import inquirer from "inquirer";
 import { initializeDataBase  } from "./initializeDatabase.js";  
+import { liquidity } from "./liquidity.js";
 import { getBalance, printBalance } from "./get_printBalance.js";
 import {getPool} from "./get_poolBalance.js";
 import { swap } from "./swap.js";
@@ -23,7 +24,7 @@ async function menu() {
 
     switch (answers.action) {
         case "add":
-            console.log("...");
+            await liquidity("userD");
             break;
         case "swap":
             await swap("userD");
