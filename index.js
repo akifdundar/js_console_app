@@ -28,7 +28,7 @@ async function menu() {
             console.log("Swap işlemi...");
             break;
         case "pool":
-            getPool();
+            await getPool();
             break;
         case "balance":
             await printBalance();
