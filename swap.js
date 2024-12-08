@@ -70,8 +70,7 @@ async function swapA(amount, userID) {
     // Perform pool transaction
     await runTransaction(poolRef, (currentPool) => {
       if (!currentPool) {
-        console.error("No pool data found.");
-        return null; // Abort transaction
+        return null; 
       }
 
       // Deduct TokenA from the user and add to the pool
@@ -87,12 +86,13 @@ async function swapA(amount, userID) {
       currentPool.tokenB = newTokenB;
 
       return currentPool; // Updated pool data
-    });
+    }).then(() => {
+      console.log("Transaction Succesful");
+    })
 
     // Update user data
     await set(userRef, userData);
 
-    console.log("Swap successful!");
   } catch (error) {
     console.error("Error in swapA:", error);
   }
@@ -121,9 +121,9 @@ async function swapB(amount, userID) {
 
     // Perform pool transaction
     await runTransaction(poolRef, (currentPool) => {
+      
       if (!currentPool) {
-        console.error("No pool data found.");
-        return null; // Abort transaction
+        return null; 
       }
 
       // Deduct TokenA from the user and add to the pool
@@ -139,12 +139,13 @@ async function swapB(amount, userID) {
       currentPool.tokenA = newTokenA;
 
       return currentPool; // Updated pool data
-    });
+    }).then(() => {
+      console.log("Transaction Succesful");
+    })
 
     // Update user data
     await set(userRef, userData);
 
-    console.log("Swap successful!");
   } catch (error) {
     console.error("Error in swapA:", error);
   }
