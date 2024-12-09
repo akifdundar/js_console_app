@@ -21,7 +21,7 @@ async function swap(userID) {
       {
         type: "input",
         name: "userValue",
-        message: "How much would you like to swap?",
+        message: "How much would you like to swap: ",
         validate: (input) =>
           !isNaN(input) && input > 0 ? true : "Please enter a valid number.",
       },
@@ -70,7 +70,7 @@ async function swapA(amount, userID) {
     // Perform pool transaction
     await runTransaction(poolRef, (currentPool) => {
       if (!currentPool) {
-        console.error("No pool data found.");
+        console.error("");
         return null; // Abort transaction
       }
 
