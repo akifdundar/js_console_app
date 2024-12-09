@@ -10,7 +10,7 @@ async function getBalance(userID) {
             await writeFile("user.json", JSON.stringify(balance, null, 2), "utf-8");
         }
         else {
-            console.log("No data found while getting data!!");   // Kırmızı yapsana ama mesela bulmama ihtimali var mı? bir de düzelt bunu
+            console.log("No data found while getting data!!");  
         }
     }
     catch(err) {

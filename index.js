@@ -36,10 +36,10 @@ async function menu() {
             await printBalance();
             break;
         case "exit":
-            console.log("Çikiliyor...");
+            console.log("You are quitting...");
             return;  
         default:
-            console.log("Geçersiz seçenek");
+            console.log("Unvalid choice");
             break;
     }
 
